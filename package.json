@@ -1,0 +1,9 @@
+{
+  "name": "raw-vis-3d",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "start": "python3 -m http.server 8000 --bind 0.0.0.0"
+  }
+}

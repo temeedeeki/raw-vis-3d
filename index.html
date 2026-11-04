@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>raw-vis-3d — Voxel viewer</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+  <aside>
+    <header>
+      <small>VOLUME EXPLORER</small>
+      <h1>raw-vis-<span>3d</span></h1>
+    </header>
+
+    <label class="file">
+      RAWファイルを選択
+      <input id="file" type="file">
+    </label>
+    <p id="filename" class="muted">ファイルはお使いの端末内だけで処理されます</p>
+
+    <section>
+      <h2>01 <span>データ設定</span></h2>
+      <div class="dims">
+        <label>幅 X<input id="nx" type="number" min="1" value="64"></label>
+        <label>高さ Y<input id="ny" type="number" min="1" value="64"></label>
+        <label>深さ Z<input id="nz" type="number" min="1" value="64"></label>
+      </div>
+      <label>
+        データ型
+        <select id="dtype">
+          <option value="8">Float64 · 64-bit 浮動小数点</option>
+          <option value="4">Float32 · 32-bit 浮動小数点</option>
+        </select>
+      </label>
+      <label>
+        バイト順
+        <select id="endian">
+          <option value="little">Little endian</option>
+          <option value="big">Big endian</option>
+        </select>
+      </label>
+      <label>
+        ヘッダーをスキップ（byte）
+        <input id="offset" type="number" min="0" value="0">
+      </label>
+      <button id="load" class="primary">読み込み・表示</button>
+    </section>
+
+    <section>
+      <h2>02 <span>表示調整</span></h2>
+      <div class="dims two">
+        <label>表示最小値<input id="lo" type="number" step="any" value="0"></label>
+        <label>表示最大値<input id="hi" type="number" step="any" value="1"></label>
+      </div>
+      <label>
+        しきい値 <output id="thresholdOut" for="threshold">0%</output>
+        <input id="threshold" type="range" min="0" max="100" value="0">
+      </label>
+      <label>
+        不透明度 <output id="opacityOut" for="opacity">100%</output>
+        <input id="opacity" type="range" min="1" max="100" value="100">
+      </label>
+      <label>
+        描画モード
+        <select id="mode">
+          <option value="0">ブロック（表面）</option>
+          <option value="1">ボリューム（透過を重ねる）</option>
+        </select>
+      </label>
+      <label class="toggle">
+        <input id="showAxes" type="checkbox" checked aria-controls="axes">
+        座標軸を表示
+      </label>
+      <button id="reset">視点をリセット</button>
+    </section>
+
+    <footer>
+      <button id="demo">デモデータを表示</button>
+      <p>WebGL 2 · ローカル処理 · 静的ホスティング対応</p>
+    </footer>
+  </aside>
+
+  <main>
+    <div class="top">
+      <span><i></i> VOXEL WORKSPACE</span>
+      <span id="shape">64 × 64 × 64</span>
+    </div>
+    <canvas id="canvas" aria-label="RAW画像の3Dビュー"></canvas>
+    <div id="message" role="status"></div>
+    <div class="bottom">
+      <span>ドラッグ：回転　 Shift + ドラッグ：移動　 スクロール：拡大</span>
+      <span id="stats"></span>
+    </div>
+    <svg id="axes" class="axis" viewBox="0 0 120 120" role="img" aria-label="視点に連動するRAWデータのX・Y・Z軸（正方向）"></svg>
+  </main>
+  <footer class="site-footer">
+    <span>raw-vis-3d · by <a href="https://github.com/temeedeeki" target="_blank" rel="noopener noreferrer">@temeedeeki</a></span>
+    <a href="https://github.com/temeedeeki/raw-vis-3d" target="_blank" rel="noopener noreferrer">GitHubリポジトリ ↗</a>
+  </footer>
+  <script type="module" src="./app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,72 @@
+# raw-vis-3d
+
+![JavaScript](https://img.shields.io/badge/-JavaScript-black?logo=javascript&logoColor=F7DF1E&style=for-the-badge)
+[![WebGL](https://img.shields.io/badge/-WebGL-white?logo=webgl&logoColor=990000&style=for-the-badge)](https://www.khronos.org/webgl/)
+
+ブラウザだけで動作する3D RAWボクセルビューア。静的ページとして配信でき、依存パッケージやビルドは不要です。
+
+## ローカルでの起動
+
+```bash
+git clone https://github.com/temeedeeki/raw-vis-3d.git
+cd raw-vis-3d
+python3 -m http.server 8000 --bind 0.0.0.0
+```
+
+同じPCでは`http://localhost:8000`を開いてください。別端末からは`http://<サーバのIPアドレス>:8000`にアクセスします（ファイアウォールで8000番への接続が許可されている必要があります）。`0.0.0.0`は全インターフェースで待ち受ける指定です。停止はターミナル上でCtrl + Cで行います。
+
+## 使い方
+
+起動直後は中空球と柱のデモを表示します。
+
+1. RAWファイルを選択し、幅X・高さY・深さZを入力。
+2. Float64 / Float32、バイト順、ヘッダーのバイト数を指定。
+3. 「読み込み・表示」を押す。
+
+ドラッグで回転、Shift+ドラッグで平行移動、ホイールで拡大します。X・Y・Z軸はRAWデータの原点側の角に表示され、回転・移動・拡大に連動して各軸の正方向を示します。しきい値で表示する値の下限を指定し、表示範囲でグレースケールを調整できます。
+
+## 仕様
+
+### データ形式と描画仕様
+
+配列順序は`x + width * (y + height * z)`（X最速）。NumPyの`(depth, height, width)`配列をC順で保存した形式です。表示の縦方向はZ軸で、Z=0が上、Zが大きいスライスほど下に配置します。視点の回転はこの縦軸を基準に行います。サイズの一致を検証します。0、NaN、Infinityは透明です。しきい値未満の値も非表示になります。
+
+ブロックモードの不透明度100%では手前の非ゼロボクセル表面を描画し、透過モードでは奥行き方向の濃度を重ねます。補間しないボクセル境界をGPUのDDAで辿ります。
+
+### 精度と制限
+
+Float64はCPU上で読み込み・保持し、描画用データのみスケーリングしてFloat32に変換します。GPU表示はfloat64精度を保証しません。全ファイルをメモリーに読み込むため、大きなデータはRAM / GPUの制限を受けます。最大ボクセル数は134,217,728、各寸法はGPUの`MAX_3D_TEXTURE_SIZE`以下、寸法合計は8100以下。WebGL 2必須です。
+
+## コードの構成
+
+| ファイル | 役割 |
+| :--- | :--- |
+| `index.html` / `style.css` | 画面構造 / 見た目 |
+| `app.js` | DOM入力、状態表示、各モジュールの連携 |
+| `js/camera.js` | マウス操作と視点の状態 |
+| `js/axes.js` | 視点に連動する軸表示 |
+| `js/renderer.js` | WebGL初期化、テクスチャ転送、描画 |
+| `js/shaders.js` | 頂点・フラグメントシェーダー（GLSL） |
+| `js/volume.js` | RAW形式の検証・デコード、描画用正規化、デモ生成 |
+| `tests/volume.test.js` | RAW読込と正規化の回帰テスト |
+
+JavaScriptの標準ES Modulesを使用しています。`file://`で直接開かず、HTTPサーバ経由で開いてください。`package.json`は開発用コマンドとモジュール形式の宣言だけで、外部依存はありません。
+
+### 処理の流れ
+
+1. `app.js`が入力値を集め、`volume.js`がRAWをFloat64Arrayへデコード。
+2. `prepareVolume`が元データを保持しつつ描画用Float32Arrayを生成。
+3. `renderer.js`が3Dテクスチャへ転送。
+4. `camera.js`の視点と表示設定をGLSLへ渡し、変更のあったフレームを描画。
+
+シェーダーでは各画素から視線を飛ばし、外箱との交差を計算した後、DDAでボクセル境界を順に進みます。ワールド座標の縦方向YをRAWの-Zに対応させ、取得時に`rawCell = (worldX, worldZ, depth - 1 - worldY)`へ変換します。軸の交換と反転はここだけで行い、元データの格納順は変えません。
+
+### 開発時の確認
+
+Node.js 18以降で、依存インストールなしで実行できます。
+
+```sh
+node --test
+```
+
+Float32/64、両バイト順、ヘッダー、サイズ不一致、非有限値、正規化を検証します。GPU描画はこのテストの対象外です。描画の変更時にはブラウザでデモと実データを開き、Z=0が上であること、回転・移動・拡大、しきい値と透過表示も確認してください。
