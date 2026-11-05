@@ -1,7 +1,7 @@
 import { Camera } from "./js/camera.js";
 import { inferRawOptions } from "./js/filename.js";
 import { updateOutline } from "./js/outline.js";
-import { updateAxes } from "./js/axes.js";
+import { updateAxes } from "./js/axes.js?v=box-center-1";
 import { VolumeRenderer } from "./js/renderer.js";
 import {
   createDemoVolume,
@@ -31,6 +31,8 @@ function startViewer() {
       frameRequested = false;
       if (element("showAxes").checked)
         updateAxes(element("axes"), camera, renderer.volume?.dimensions);
+      if (element("showCenterAxes").checked)
+        updateAxes(element("centerAxes"), camera, renderer.volume?.dimensions, true);
       if (element("showOutline").checked)
         updateOutline(element("outline"), camera, renderer.volume?.dimensions);
       const settings = readDisplaySettings();
@@ -168,6 +170,10 @@ function startViewer() {
   }
   element("showAxes").addEventListener("change", () => {
     element("axes").toggleAttribute("hidden", !element("showAxes").checked);
+    requestRender();
+  });
+  element("showCenterAxes").addEventListener("change", () => {
+    element("centerAxes").toggleAttribute("hidden", !element("showCenterAxes").checked);
     requestRender();
   });
   element("showOutline").addEventListener("change", () => {

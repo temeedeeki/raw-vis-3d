@@ -73,7 +73,11 @@
       </label>
       <label class="toggle">
         <input id="showAxes" type="checkbox" checked aria-controls="axes">
-        中心の座標軸を表示
+        原点の座標軸を表示
+      </label>
+      <label class="toggle">
+        <input id="showCenterAxes" type="checkbox" checked aria-controls="centerAxes">
+        外枠の中心の3軸を表示
       </label>
       <label class="toggle">
         <input id="showOutline" type="checkbox" checked aria-controls="outline">
@@ -100,13 +104,14 @@
       <span id="stats"></span>
     </div>
     <svg id="outline" class="axis outline" role="img" aria-label="ボリュームの外枠"></svg>
-    <svg id="axes" class="axis" viewBox="0 0 120 120" role="img" aria-label="ボリューム中心で視点に連動するRAWデータのX・Y・Z軸（正方向）"></svg>
+    <svg id="axes" class="axis" viewBox="0 0 120 120" role="img" aria-label="RAWデータの原点のX・Y・Z軸（正方向）"></svg>
+    <svg id="centerAxes" class="axis" role="img" aria-label="ボリューム外枠の中心を通るX・Y・Z軸"></svg>
   </main>
   <footer class="site-footer">
     <span>raw-vis-3d · by <a href="https://github.com/temeedeeki" target="_blank" rel="noopener noreferrer">@temeedeeki</a></span>
     <a href="https://github.com/temeedeeki/raw-vis-3d" target="_blank" rel="noopener noreferrer">GitHubリポジトリ ↗</a>
   </footer>
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=box-center-1"></script>
 </body>
 
 </html>

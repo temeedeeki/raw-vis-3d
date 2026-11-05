@@ -10,13 +10,16 @@ export function projectPoint(point, camera, width, height) {
     height / 2 - up * 1.9 * height / (2 * depth)];
 }
 
-export function updateAxes(svg, camera, dimensions) {
+export function updateAxes(svg, camera, dimensions, centered = false) {
   if (!dimensions) return;
   const width = svg.clientWidth, height = svg.clientHeight;
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  // The volume bounds are centered on world zero for every shape.
   // RAW directions: X → X, Y → Z, Z → -Y.
-  const origin = [0, 0, 0];
+  const scale = Math.max(...dimensions);
+  const half = [dimensions[0], dimensions[2], dimensions[1]].map(n => n / scale / 2);
+  const origin = centered ? [0, 0, 0] : [
+    -dimensions[0] / scale / 2, dimensions[2] / scale / 2, -dimensions[1] / scale / 2,
+  ];
   const start = projectPoint(origin, camera, width, height);
   const ns = "http://www.w3.org/2000/svg";
   const nodes = [];
@@ -26,12 +29,15 @@ export function updateAxes(svg, camera, dimensions) {
       ["Y", "#6be4c0", [0, 0, 1]],
       ["Z", "#8dbbff", [0, -1, 0]],
     ]) {
-      const end = projectPoint(origin.map((v, i) => v + direction[i] * 0.18), camera, width, height);
-      const caption = projectPoint(origin.map((v, i) => v + direction[i] * 0.23), camera, width, height);
-      if (!end || !caption) continue;
+      const axisStart = centered
+        ? projectPoint(direction.map((v, i) => -v * half[i]), camera, width, height)
+        : start;
+      const end = projectPoint(origin.map((v, i) => v + direction[i] * (centered ? half[i] : 0.18)), camera, width, height);
+      const caption = projectPoint(origin.map((v, i) => v + direction[i] * (centered ? half[i] + 0.05 : 0.23)), camera, width, height);
+      if (!axisStart || !end || !caption) continue;
       const line = document.createElementNS(ns, "line");
-      line.setAttribute("x1", start[0]);
-      line.setAttribute("y1", start[1]);
+      line.setAttribute("x1", axisStart[0]);
+      line.setAttribute("y1", axisStart[1]);
       line.setAttribute("x2", end[0]);
       line.setAttribute("y2", end[1]);
       line.setAttribute("stroke", color);
@@ -43,6 +49,14 @@ export function updateAxes(svg, camera, dimensions) {
       text.textContent = label;
       nodes.push(line, text);
     }
+  }
+  if (centered && start) {
+    const center = document.createElementNS(ns, "circle");
+    center.setAttribute("cx", start[0]);
+    center.setAttribute("cy", start[1]);
+    center.setAttribute("r", "3");
+    center.setAttribute("fill", "#e1e7ef");
+    nodes.push(center);
   }
   svg.replaceChildren(...nodes);
 }
