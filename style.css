@@ -325,6 +325,28 @@ button:disabled {
   opacity: 0.6;
 }
 
+/* Keep long names within the control panel and workspace. */
+aside {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.file input {
+  min-width: 0;
+  max-width: 100%;
+}
+
+#filename {
+  overflow-wrap: anywhere;
+}
+
+#stats {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .file.dragover {
   border-color: #6be4c0;
   background: #20352f;
