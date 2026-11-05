@@ -14,9 +14,9 @@ export function updateAxes(svg, camera, dimensions) {
   if (!dimensions) return;
   const width = svg.clientWidth, height = svg.clientHeight;
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  const scale = Math.max(...dimensions);
-  // RAW (0, 0, 0) is at the upper corner: X → X, Y → Z, Z → -Y.
-  const origin = [-dimensions[0] / scale / 2, dimensions[2] / scale / 2, -dimensions[1] / scale / 2];
+  // The volume bounds are centered on world zero for every shape.
+  // RAW directions: X → X, Y → Z, Z → -Y.
+  const origin = [0, 0, 0];
   const start = projectPoint(origin, camera, width, height);
   const ns = "http://www.w3.org/2000/svg";
   const nodes = [];
