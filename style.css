@@ -324,3 +324,8 @@ button:disabled {
   cursor: wait;
   opacity: 0.6;
 }
+
+.file.dragover {
+  border-color: #6be4c0;
+  background: #20352f;
+}

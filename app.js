@@ -1,4 +1,5 @@
 import { Camera } from "./js/camera.js";
+import { inferRawOptions } from "./js/filename.js";
 import { updateAxes } from "./js/axes.js";
 import { VolumeRenderer } from "./js/renderer.js";
 import {
@@ -16,6 +17,7 @@ function startViewer() {
   const renderer = new VolumeRenderer(canvas);
   let frameRequested = false;
   let loading = false;
+  let selectedFile = null;
 
   function showMessage(text) {
     element("message").textContent = text;
@@ -84,17 +86,46 @@ function startViewer() {
     displayVolume(values, dimensions, "DEMO");
   }
 
-  element("file").addEventListener("change", () => {
-    const file = element("file").files[0];
+  function selectFile(file) {
+    selectedFile = file;
     element("filename").textContent = file
       ? `${file.name} · ${file.size.toLocaleString()} bytes`
       : "ファイルはお使いの端末内だけで処理されます";
+    element("filename").title = file?.name ?? "";
+    if (!file) return;
+    const inferred = inferRawOptions(file.name);
+    if (inferred.bytesPerValue) element("dtype").value = inferred.bytesPerValue;
+    if (inferred.dimensions)
+      ["nx", "ny", "nz"].forEach((id, index) => element(id).value = inferred.dimensions[index]);
+  }
+  element("file").addEventListener("change", () => selectFile(element("file").files[0]));
+  const dropzone = element("dropzone");
+  for (const name of ["dragenter", "dragover"]) {
+    dropzone.addEventListener(name, event => {
+      event.preventDefault();
+      dropzone.classList.add("dragover");
+    });
+  }
+  dropzone.addEventListener("dragleave", event => {
+    if (!dropzone.contains(event.relatedTarget)) dropzone.classList.remove("dragover");
+  });
+  dropzone.addEventListener("drop", event => {
+    event.preventDefault();
+    dropzone.classList.remove("dragover");
+    const files = event.dataTransfer.files;
+    if (files.length !== 1) {
+      showMessage("RAWファイルを1つドロップしてください。");
+      return;
+    }
+    element("file").files = files;
+    selectFile(files[0]);
+    showMessage("");
   });
 
   element("load").addEventListener("click", async () => {
     if (loading) return;
     try {
-      const file = element("file").files[0];
+      const file = selectedFile;
       if (!file) throw new Error("RAW ファイルを選択してください。");
       const options = readRawOptions();
       validateRawLayout(file.size, options);
