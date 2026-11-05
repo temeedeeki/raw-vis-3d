@@ -65,3 +65,10 @@ test("empty and negative-only volumes have usable display ranges", () => {
   assert.equal(negative.displayMinimum, -5);
   assert.equal(negative.displayMaximum, -2);
 });
+
+test("Uint8 decodes the full unsigned range with a header", () => {
+  const buffer = new Uint8Array([99, 0, 127, 128, 255]).buffer;
+  const options = { dimensions: [2, 2, 1], bytesPerValue: 1, headerBytes: 1, littleEndian: false };
+  assert.deepEqual([...decodeRaw(buffer, options)], [0, 127, 128, 255]);
+  assert.throws(() => decodeRaw(buffer.slice(1), options), /サイズ/);
+});

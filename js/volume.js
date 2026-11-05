@@ -14,8 +14,8 @@ export function validateRawLayout(
       "寸法は正の整数、ヘッダーは 0 以上の整数で指定してください。",
     );
   }
-  if (![4, 8].includes(bytesPerValue)) {
-    throw new Error("対応するデータ型は Float32 / Float64 です。");
+  if (![1, 4, 8].includes(bytesPerValue)) {
+    throw new Error("対応するデータ型は Uint8 / Float32 / Float64です。");
   }
   const count = dimensions.reduce((product, size) => product * size, 1);
   const expected = count * bytesPerValue + headerBytes;
@@ -42,7 +42,9 @@ export function decodeRaw(buffer, options) {
     values[index] =
       bytesPerValue === 8
         ? view.getFloat64(offset, littleEndian)
-        : view.getFloat32(offset, littleEndian);
+        : bytesPerValue === 4
+          ? view.getFloat32(offset, littleEndian)
+          : view.getUint8(offset);
   }
   return values;
 }
