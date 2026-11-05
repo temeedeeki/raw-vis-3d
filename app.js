@@ -115,12 +115,21 @@ function startViewer() {
   dropzone.addEventListener("drop", event => {
     event.preventDefault();
     dropzone.classList.remove("dragover");
-    const files = event.dataTransfer.files;
+    const transfer = event.dataTransfer;
+    const files = transfer.files.length
+      ? [...transfer.files]
+      : [...transfer.items].filter(item => item.kind === "file")
+          .map(item => item.getAsFile()).filter(Boolean);
+    if (files.length === 0) {
+      showMessage("ドロップされたファイルを取得できませんでした。「参照」ボタンから選択してください。");
+      return;
+    }
     if (files.length !== 1) {
       showMessage("RAWファイルを1つドロップしてください。");
       return;
     }
-    element("file").files = files;
+    // Keep the selected File directly; a dropped item need not provide a FileList.
+    element("file").value = "";
     selectFile(files[0]);
     showMessage("");
   });
