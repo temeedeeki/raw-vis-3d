@@ -75,6 +75,10 @@
         <input id="showAxes" type="checkbox" checked aria-controls="axes">
         座標軸を表示
       </label>
+      <label class="toggle">
+        <input id="showOutline" type="checkbox" checked aria-controls="outline">
+        ボリュームの外枠を表示
+      </label>
       <button id="reset">視点をリセット</button>
     </section>
 
@@ -95,6 +99,7 @@
       <span>ドラッグ：回転　 Shift + ドラッグ：移動　 スクロール：拡大</span>
       <span id="stats"></span>
     </div>
+    <svg id="outline" class="axis outline" role="img" aria-label="ボリュームの外枠"></svg>
     <svg id="axes" class="axis" viewBox="0 0 120 120" role="img" aria-label="視点に連動するRAWデータのX・Y・Z軸（正方向）"></svg>
   </main>
   <footer class="site-footer">

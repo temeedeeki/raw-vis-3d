@@ -351,3 +351,9 @@ aside {
   border-color: #6be4c0;
   background: #20352f;
 }
+
+.outline line {
+  stroke: #a9b6c8;
+  stroke-opacity: 0.4;
+  stroke-width: 1;
+}

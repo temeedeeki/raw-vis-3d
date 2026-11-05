@@ -1,5 +1,6 @@
 import { Camera } from "./js/camera.js";
 import { inferRawOptions } from "./js/filename.js";
+import { updateOutline } from "./js/outline.js";
 import { updateAxes } from "./js/axes.js";
 import { VolumeRenderer } from "./js/renderer.js";
 import {
@@ -30,6 +31,8 @@ function startViewer() {
       frameRequested = false;
       if (element("showAxes").checked)
         updateAxes(element("axes"), camera, renderer.volume?.dimensions);
+      if (element("showOutline").checked)
+        updateOutline(element("outline"), camera, renderer.volume?.dimensions);
       const settings = readDisplaySettings();
       if (
         !Number.isFinite(settings.minimum) ||
@@ -156,6 +159,10 @@ function startViewer() {
   }
   element("showAxes").addEventListener("change", () => {
     element("axes").toggleAttribute("hidden", !element("showAxes").checked);
+    requestRender();
+  });
+  element("showOutline").addEventListener("change", () => {
+    element("outline").toggleAttribute("hidden", !element("showOutline").checked);
     requestRender();
   });
   element("reset").addEventListener("click", () => camera.reset());
